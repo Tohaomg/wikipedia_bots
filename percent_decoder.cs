@@ -64,7 +64,8 @@ class DuplicateReferencesRemover:Bot
 		estimated_time_left_str = (days!=0?days+" d ":"") + (hours!=0?hours+" h ":"") + minutes+" m"; //present estimated time remaining in human readable text form
 	}
 	else {estimated_time_left_str = "?";} //there is nothing to show when no pages were processed yet
-	Console.Write("thread " + thread_index + ":   " + i.ToString("#,#", culture) + " / " + page_list_count_str + "  (" + Math.Floor( (double)((i*100)/pages_count) ) + "%, " + estimated_time_left_str + ")   " );
+	Console.Write("thread " + thread_index + ":   " + i.ToString("#,#", culture) + " / " + page_list_count_str + "  (" + Math.Floor( (double)((i*100)/pages_count) ) 
+		+ "%, " + estimated_time_left_str + ")   " );
 
 	//load the page (function ErrorProofPageLoad returns 'true' if this page should be skipped)
 	should_skip_this_page = ErrorProofPageFunctions.ErrorProofPageLoad(ref p, site_url);
@@ -103,10 +104,16 @@ class DuplicateReferencesRemover:Bot
   else {Console.WriteLine("Processing all pages");}
 
   //load pairs of code-letters from file into a dictionary
-  string pair_text;
+  string pair_text, letter_code, letter;
   StreamReader hash_array_in = new StreamReader("codes_to_letters.txt");
   while((pair_text = hash_array_in.ReadLine()) != null)
-  { codes_to_letters.Add(pair_text.Split('\t')[0], pair_text.Split('\t')[1]); }
+  {
+	letter_code = pair_text.Split('\t')[0];
+	letter = pair_text.Split('\t')[1];
+	codes_to_letters.Add(letter_code, letter); //add a new code and its corresponding character to the dictionary
+	//add the same code, but in lower case (e.g. %D0%9B and %d0%9b are actually the same thing)
+	if(letter_code!=letter_code.ToLower()) {codes_to_letters.Add(letter_code.ToLower(), letter);}
+  }
   hash_array_in.Close();
 
   pages = new PageList(wiki); //create a new (for now, empty) list of pages
